@@ -7,7 +7,7 @@ public class OpenAddressingHashTable<V> { // Used to cast the data type from the
     public static final int INITIAL_CAPACITY = 16; // Default value for the initial capacity
     public static final double LOAD_FACTOR = 0.75; // The ratio of the number of elements to the capacity to the table =
 
-    public OpenAddressingHashTable(Integer[] key, V[] value) {
+    public OpenAddressingHashTable() {
         this.keys = new Integer[INITIAL_CAPACITY]; // key is an integer
         this.values = (V[]) new Object[INITIAL_CAPACITY]; // value can be any object being cast to the object passed in
         this.size = 0; // When the hash table is created there are no key and string pairs
@@ -17,22 +17,23 @@ public class OpenAddressingHashTable<V> { // Used to cast the data type from the
 
     /* .put() function
      * @input Integer[] keys, V[] Values
-     * @process complete validation and add the elements at the index in both the arrays (currently without handling collisions)
+     * @process complete validation and add the elements at the index in both the arrays
      */
 
     public void put(Integer key, V value) {
         if(size >= LOAD_FACTOR * keys.length) {
             // So, if the size is greater than the max keys that have to be loaded then you should increase the size of the array
-            // Resize the arrays
             
-            int newSize = keys.length * 2;
+            // Resize the arrays
+            int newSize = keys.length * 2; // double the size
             Integer[] oldKeys = keys;
             V[] oldValues = values;
 
             keys = new Integer[newSize];
             values = (V[]) new Object[newSize];
 
-            for (int i = 0; i > keys.length; i++) {
+            // add the older values into the new ones
+            for (int i = 0; i < oldKeys.length; i++) {
                 keys[i] = oldKeys[i];
                 values[i] = oldValues[i];
             }
@@ -41,17 +42,34 @@ public class OpenAddressingHashTable<V> { // Used to cast the data type from the
         // create a hashing algo that assigns keys to index
         // let's use linear probing
 
-        
+        // calculate the index, if there is a value there just go the next value
+
+        Integer index = (key%keys.length); 
+        while (keys[index] != null) { 
+            index++; // linear probing by one item until one item is found
+        }
+        if (keys[index] == null) {
+            keys[index] = key;
+            values[index] = value;
+        }
     }
 
-
-
-
-    
-
-
-
+    public V get(Integer key) {
+        Integer index = (key%keys.length); 
+        while (keys[index] != null && !keys[index].equals(key)) { 
+            index++; // Move onto the next index until a null is found
+        }
+        return keys[index] != null ? values[index] : null;
+    }
     public static void main(String[] args) {
         System.out.println("This is the class for implementing Hash Table with Open Addressing");
+
+        OpenAddressingHashTable<String> hashTable = new OpenAddressingHashTable<>();
+        // Testing a collision: The collision is avoided because the size is double so MOD is different
+        hashTable.put(4, "Value4");
+        hashTable.put(20, "Value20");
+
+        System.out.println("Get key 4: " + hashTable.get(4));
+        System.out.println("Get key 20: " + hashTable.get(20));
     }
 }
