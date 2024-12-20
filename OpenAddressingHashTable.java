@@ -23,43 +23,62 @@ public class OpenAddressingHashTable<V> { // Used to cast the data type from the
     public void put(Integer key, V value) {
         if(size >= LOAD_FACTOR * keys.length) {
             // So, if the size is greater than the max keys that have to be loaded then you should increase the size of the array
-            
-            // Resize the arrays
-            int newSize = keys.length * 2; // double the size
-            Integer[] oldKeys = keys;
-            V[] oldValues = values;
-
-            keys = new Integer[newSize];
-            values = (V[]) new Object[newSize];
-
-            // add the older values into the new ones
-            for (int i = 0; i < oldKeys.length; i++) {
-                keys[i] = oldKeys[i];
-                values[i] = oldValues[i];
-            }
+            resize();
         }
-
-        // create a hashing algo that assigns keys to index
         // let's use linear probing
 
         // calculate the index, if there is a value there just go the next value
 
-        Integer index = (key%keys.length); 
-        while (keys[index] != null) { 
-            index++; // linear probing by one item until one item is found
-        }
+        Integer index = findIndex(key);
         if (keys[index] == null) {
             keys[index] = key;
             values[index] = value;
         }
     }
 
+    private void resize() {
+        int newSize = keys.length * 2; // double the size
+        Integer[] oldKeys = keys;
+        V[] oldValues = values;
+
+        keys = new Integer[newSize];
+        values = (V[]) new Object[newSize];
+
+        // add the older values into the new ones
+        for (int i = 0; i < oldKeys.length; i++) {
+            keys[i] = oldKeys[i];
+            values[i] = oldValues[i];
+        }
+    }
+
     public V get(Integer key) {
+        Integer index = findIndex(key);
+        return keys[index] != null ? values[index] : null;
+    }
+
+    public void remove(Integer key) {
+        Integer index = findIndex(key);
+        if (keys[index] != null) {
+            keys[index] = null;
+            values[index] = null;
+            size--;
+        }
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    private int findIndex(Integer key) {
         Integer index = (key%keys.length); 
         while (keys[index] != null && !keys[index].equals(key)) { 
             index++; // Move onto the next index until a null is found
         }
-        return keys[index] != null ? values[index] : null;
+        return index;
     }
     public static void main(String[] args) {
         System.out.println("This is the class for implementing Hash Table with Open Addressing");
